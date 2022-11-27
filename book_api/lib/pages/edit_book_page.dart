@@ -7,23 +7,33 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-class AddBookPage extends StatefulWidget {
-  const AddBookPage({super.key});
+import '../models/book_model.dart';
+
+class EditBookPage extends StatefulWidget {
+  final Book book;
+  EditBookPage({required this.book, super.key});
 
   @override
-  State<AddBookPage> createState() => _AddBookPageState();
+  State<EditBookPage> createState() => _EditBookPageState();
 }
 
-class _AddBookPageState extends State<AddBookPage> {
+class _EditBookPageState extends State<EditBookPage> {
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
   final priceController = TextEditingController();
 
   File? imageFile;
-
   String? imageError;
 
   var formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    titleController.text = widget.book.title;
+    descriptionController.text = widget.book.description;
+    priceController.text = widget.book.price;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +91,8 @@ class _AddBookPageState extends State<AddBookPage> {
                   height: 100,
                 )
               else
-                Container(
+                Image.network(
+                  widget.book.image,
                   width: 100,
                   height: 100,
                 ),
@@ -109,8 +120,6 @@ class _AddBookPageState extends State<AddBookPage> {
               Spacer(),
               ElevatedButton(
                   onPressed: () async {
-                    // form
-
                     if (imageFile == null) {
                       setState(() {
                         imageError = "Required field";
@@ -118,7 +127,8 @@ class _AddBookPageState extends State<AddBookPage> {
                     }
 
                     if (formKey.currentState!.validate() && imageFile != null) {
-                      await context.read<BookProvider>().addBook(
+                      await context.read<BookProvider>().editBook(
+                            id: widget.book.id,
                             title: titleController.text,
                             description: descriptionController.text,
                             price: priceController.text,
@@ -127,7 +137,7 @@ class _AddBookPageState extends State<AddBookPage> {
                       context.pop();
                     }
                   },
-                  child: Text("Add Book"))
+                  child: Text("Save"))
             ],
           ),
         ));
